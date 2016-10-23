@@ -134,36 +134,33 @@ net = tflearn.input_data(shape=[None, 34])
 net = tflearn.fully_connected(net, 68)
 net = tflearn.fully_connected(net, 34)
 net = tflearn.dropout(net, 0.5)
-net = tflearn.fully_connected(net, 4, activation='softmax')
+net = tflearn.fully_connected(net, 5, activation='softmax')
 net = tflearn.regression(net, optimizer='adam', loss='categorical_crossentropy')
 model = tflearn.DNN(net)
 
-labels = np.zeros((len(y), 4))
+labels = np.zeros((len(y), 5))
 for i in range(len(y)):
-    labels[i][y[i] - 1] = 1
+    labels[i][y[i]] = 1
 
 model.fit(X, labels, n_epoch=10, batch_size=16, show_metric=True)
 
-
-#    ...: net = tflearn.input_data(shape=[None, 34])
-#    ...: net = tflearn.fully_connected(net, 68)
-#    ...: net = tflearn.fully_connected(net, 34)
-#    ...: net = tflearn.fully_connected(net, 4, activation='softmax')
-#    ...: net = tflearn.regression(net)
-#    ...: model = tflearn.DNN(net)
-#    ...: 
-#    ...: labels = np.zeros((len(y), 4))
-#    ...: for i in range(len(y)):
-#    ...:     labels[i][y[i] - 1] = 1
-
-#    ...: model.fit(X, labels, n_epoch=10, batch_size=16, show_metric=True)
-#    ...: 
-# ---------------------------------
-# Run id: G4X9FA
-# Log directory: /tmp/tflearn_logs/
-# ---------------------------------
-# Training samples: 60129
-# Validation samples: 0
-# --
-# Training Step: 3759  | total loss: 0.61979
-# | Adam | epoch: 001 | loss: 0.61979 - acc: 0.8159 -- iter: 60129/60129
+df_test = pd.read_csv('Leaderboard_Dataset.csv')
+df_test = clean_data(df_test, False)
+test_data = df_test.values
+test_x = test_data[:, 1:]
+pred = model.predict(test_x)
+y_pred = []
+for i in range(len(pred)):
+    y_pred.append(pred[i].index(max(pred[i])))
+df_test['Voted_to'] = y_pred
+# {'Centaur': 0, 'Cosmos': 1, 'Ebony': 2, 'Odyssey': 3, 'Tokugawa': 4}
+rev_party_dict_mapping = {}
+rev_party_dict_mapping[0] = 'Centaur'
+rev_party_dict_mapping[1] = 'Cosmos'
+rev_party_dict_mapping[2] = 'Ebony'
+rev_party_dict_mapping[3] = 'Odyssey'
+rev_party_dict_mapping[4] = 'Tokugawa'
+df_test['Voted_to_ref'] = df_test['Voted_to'].map(rev_party_dict_mapping).astype(str)
+import csv
+df_test[['citizen_id', 'Voted_to_ref']] \
+    .to_csv('snark_IITKharagpur_5.csv', index = False, quoting=csv.QUOTE_NONNUMERIC, header = False)
