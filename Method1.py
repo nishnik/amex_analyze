@@ -88,6 +88,8 @@ def accuracy(y_true,y_pred):
     # NumPy interpretes True and False as 1. and 0.
     return np.mean(y_true == y_pred)
 
+
+
 # print ("Decision Tree:")
 # print ("%.3f" % accuracy(y, run_cv(X,y,DT)))
 
@@ -132,6 +134,7 @@ def accuracy(y_true,y_pred):
 import tflearn
 net = tflearn.input_data(shape=[None, 34])
 net = tflearn.fully_connected(net, 68)
+net = tflearn.fully_connected(net, 68, activation='sigmoid')
 net = tflearn.fully_connected(net, 34)
 net = tflearn.dropout(net, 0.5)
 net = tflearn.fully_connected(net, 5, activation='softmax')
@@ -144,23 +147,23 @@ for i in range(len(y)):
 
 model.fit(X, labels, n_epoch=10, batch_size=16, show_metric=True)
 
-df_test = pd.read_csv('Leaderboard_Dataset.csv')
-df_test = clean_data(df_test, False)
-test_data = df_test.values
-test_x = test_data[:, 1:]
-pred = model.predict(test_x)
-y_pred = []
-for i in range(len(pred)):
-    y_pred.append(pred[i].index(max(pred[i])))
-df_test['Voted_to'] = y_pred
-# {'Centaur': 0, 'Cosmos': 1, 'Ebony': 2, 'Odyssey': 3, 'Tokugawa': 4}
-rev_party_dict_mapping = {}
-rev_party_dict_mapping[0] = 'Centaur'
-rev_party_dict_mapping[1] = 'Cosmos'
-rev_party_dict_mapping[2] = 'Ebony'
-rev_party_dict_mapping[3] = 'Odyssey'
-rev_party_dict_mapping[4] = 'Tokugawa'
-df_test['Voted_to_ref'] = df_test['Voted_to'].map(rev_party_dict_mapping).astype(str)
-import csv
-df_test[['citizen_id', 'Voted_to_ref']] \
-    .to_csv('snark_IITKharagpur_5.csv', index = False, quoting=csv.QUOTE_NONNUMERIC, header = False)
+# df_test = pd.read_csv('Leaderboard_Dataset.csv')
+# df_test = clean_data(df_test, False)
+# test_data = df_test.values
+# test_x = test_data[:, 1:]
+# pred = model.predict(test_x)
+# y_pred = []
+# for i in range(len(pred)):
+#     y_pred.append(pred[i].index(max(pred[i])))
+# df_test['Voted_to'] = y_pred
+# # {'Centaur': 0, 'Cosmos': 1, 'Ebony': 2, 'Odyssey': 3, 'Tokugawa': 4}
+# rev_party_dict_mapping = {}
+# rev_party_dict_mapping[0] = 'Centaur'
+# rev_party_dict_mapping[1] = 'Cosmos'
+# rev_party_dict_mapping[2] = 'Ebony'
+# rev_party_dict_mapping[3] = 'Odyssey'
+# rev_party_dict_mapping[4] = 'Tokugawa'
+# df_test['Voted_to_ref'] = df_test['Voted_to'].map(rev_party_dict_mapping).astype(str)
+# import csv
+# df_test[['citizen_id', 'Voted_to_ref']] \
+#     .to_csv('snark_IITKharagpur_5.csv', index = False, quoting=csv.QUOTE_NONNUMERIC, header = False)
